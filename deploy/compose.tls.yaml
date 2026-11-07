@@ -1,0 +1,17 @@
+services:
+  web:
+    ports:
+      - "${LAN_BIND_IP}:443:8443"
+    volumes:
+      - ./frontend/nginx-tls.conf:/etc/nginx/conf.d/default.conf:ro
+    secrets:
+      - tls_certificate
+      - tls_private_key
+    healthcheck:
+      test: ["CMD-SHELL", "nginx -t"]
+
+secrets:
+  tls_certificate:
+    file: ./secrets/tls_certificate.pem
+  tls_private_key:
+    file: ./secrets/tls_private_key.pem

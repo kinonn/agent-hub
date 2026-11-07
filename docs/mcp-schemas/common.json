@@ -1,0 +1,187 @@
+{
+  "$defs": {
+    "AgentType": {
+      "enum": [
+        "hermes",
+        "opencode",
+        "copilot",
+        "other"
+      ],
+      "type": "string"
+    },
+    "ArtifactType": {
+      "enum": [
+        "research",
+        "specification",
+        "decision",
+        "implementation",
+        "review"
+      ],
+      "type": "string"
+    },
+    "Capability": {
+      "pattern": "^[a-z0-9][a-z0-9._-]{0,63}$",
+      "type": "string"
+    },
+    "Cursor": {
+      "maxLength": 512,
+      "minLength": 1,
+      "type": "string"
+    },
+    "DocumentKey": {
+      "maxLength": 80,
+      "minLength": 1,
+      "pattern": "^(?!.*\\.\\.)[a-z0-9][a-z0-9._-]{0,79}$",
+      "type": "string"
+    },
+    "ErrorEnvelope": {
+      "$defs": {
+        "ErrorBody": {
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "title": "Code",
+              "type": "string"
+            },
+            "details": {
+              "additionalProperties": true,
+              "title": "Details",
+              "type": "object"
+            },
+            "message": {
+              "title": "Message",
+              "type": "string"
+            }
+          },
+          "required": [
+            "code",
+            "message"
+          ],
+          "title": "ErrorBody",
+          "type": "object"
+        }
+      },
+      "additionalProperties": false,
+      "properties": {
+        "error": {
+          "$ref": "#/$defs/ErrorBody"
+        }
+      },
+      "required": [
+        "error"
+      ],
+      "title": "ErrorEnvelope",
+      "type": "object"
+    },
+    "IdempotencyKey": {
+      "maxLength": 128,
+      "minLength": 1,
+      "pattern": "^[A-Za-z0-9._:-]+$",
+      "type": "string"
+    },
+    "LeaseToken": {
+      "maxLength": 128,
+      "minLength": 22,
+      "pattern": "^[A-Za-z0-9_-]+$",
+      "type": "string"
+    },
+    "Limit": {
+      "default": 25,
+      "maximum": 100,
+      "minimum": 1,
+      "type": "integer"
+    },
+    "MessageType": {
+      "enum": [
+        "info",
+        "question",
+        "answer",
+        "status",
+        "handoff",
+        "system"
+      ],
+      "type": "string"
+    },
+    "NullableString": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "NullableTimestamp": {
+      "anyOf": [
+        {
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}Z$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "NullableUuid": {
+      "anyOf": [
+        {
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "ProjectRef": {
+      "pattern": "^(?:[a-z0-9][a-z0-9-]{1,62}|[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$",
+      "type": "string"
+    },
+    "ProjectRole": {
+      "enum": [
+        "reader",
+        "contributor",
+        "maintainer"
+      ],
+      "type": "string"
+    },
+    "PublicationStatus": {
+      "enum": [
+        "draft",
+        "in_review",
+        "published",
+        "rejected",
+        "superseded",
+        "failed"
+      ],
+      "type": "string"
+    },
+    "TaskStatus": {
+      "enum": [
+        "pending",
+        "claimed",
+        "in_progress",
+        "blocked",
+        "completed",
+        "failed",
+        "cancelled"
+      ],
+      "type": "string"
+    },
+    "TaskType": {
+      "pattern": "^[a-z0-9][a-z0-9._-]{0,63}$",
+      "type": "string"
+    },
+    "Timestamp": {
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}Z$",
+      "type": "string"
+    },
+    "Uuid": {
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+      "type": "string"
+    }
+  },
+  "$id": "https://agenthub.local/schemas/common.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}

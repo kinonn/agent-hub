@@ -1,0 +1,14 @@
+.git
+.gitignore
+.env
+.venv
+__pycache__
+*.py[cod]
+.pytest_cache
+.ruff_cache
+.coverage
+backups
+secrets
+frontend/node_modules
+frontend/dist
+AgentHub_MVP_Implementation_Specification_RPi_v1.5.md

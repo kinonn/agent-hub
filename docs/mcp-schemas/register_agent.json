@@ -1,0 +1,157 @@
+{
+  "$id": "https://agenthub.local/schemas/tools/register_agent.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "Update the caller's agent profile and capabilities; does not create an agent.",
+  "input": {
+    "additionalProperties": false,
+    "properties": {
+      "capabilities": {
+        "items": {
+          "pattern": "^[a-z0-9][a-z0-9._-]{0,63}$",
+          "type": "string"
+        },
+        "maxItems": 32,
+        "title": "Capabilities",
+        "type": "array",
+        "uniqueItems": true
+      },
+      "description": {
+        "anyOf": [
+          {
+            "maxLength": 1000,
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Description"
+      }
+    },
+    "title": "RegisterAgentInput",
+    "type": "object"
+  },
+  "name": "register_agent",
+  "output": {
+    "$defs": {
+      "AgentProfile": {
+        "additionalProperties": false,
+        "properties": {
+          "agent_type": {
+            "enum": [
+              "hermes",
+              "opencode",
+              "copilot",
+              "other"
+            ],
+            "title": "Agent Type",
+            "type": "string"
+          },
+          "capabilities": {
+            "items": {
+              "pattern": "^[a-z0-9][a-z0-9._-]{0,63}$",
+              "type": "string"
+            },
+            "title": "Capabilities",
+            "type": "array"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Description"
+          },
+          "id": {
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "title": "Id",
+            "type": "string"
+          },
+          "last_seen_at": {
+            "anyOf": [
+              {
+                "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}Z$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Last Seen At"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "active",
+              "disabled"
+            ],
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "agent_type",
+          "capabilities",
+          "id",
+          "name",
+          "status"
+        ],
+        "title": "AgentProfile",
+        "type": "object"
+      },
+      "Membership": {
+        "additionalProperties": false,
+        "properties": {
+          "project": {
+            "title": "Project",
+            "type": "string"
+          },
+          "role": {
+            "enum": [
+              "reader",
+              "contributor",
+              "maintainer"
+            ],
+            "title": "Role",
+            "type": "string"
+          }
+        },
+        "required": [
+          "project",
+          "role"
+        ],
+        "title": "Membership",
+        "type": "object"
+      }
+    },
+    "additionalProperties": false,
+    "properties": {
+      "agent": {
+        "$ref": "#/$defs/AgentProfile"
+      },
+      "memberships": {
+        "items": {
+          "$ref": "#/$defs/Membership"
+        },
+        "title": "Memberships",
+        "type": "array"
+      }
+    },
+    "required": [
+      "agent",
+      "memberships"
+    ],
+    "title": "RegisterAgentOutput",
+    "type": "object"
+  }
+}

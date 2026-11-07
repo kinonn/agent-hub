@@ -1,0 +1,289 @@
+{
+  "$id": "https://agenthub.local/schemas/tools/complete_task.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "Complete a task. Identical terminal retries are replayed safely.",
+  "input": {
+    "additionalProperties": false,
+    "properties": {
+      "artifact_ids": {
+        "items": {
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+          "type": "string"
+        },
+        "maxItems": 50,
+        "title": "Artifact Ids",
+        "type": "array",
+        "uniqueItems": true
+      },
+      "lease_token": {
+        "maxLength": 128,
+        "minLength": 22,
+        "pattern": "^[A-Za-z0-9_-]+$",
+        "title": "Lease Token",
+        "type": "string"
+      },
+      "result_summary": {
+        "maxLength": 20000,
+        "minLength": 1,
+        "title": "Result Summary",
+        "type": "string"
+      },
+      "task_id": {
+        "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+        "title": "Task Id",
+        "type": "string"
+      }
+    },
+    "required": [
+      "lease_token",
+      "result_summary",
+      "task_id"
+    ],
+    "title": "CompleteTaskInput",
+    "type": "object"
+  },
+  "name": "complete_task",
+  "output": {
+    "$defs": {
+      "Task": {
+        "additionalProperties": false,
+        "properties": {
+          "assigned_agent_id": {
+            "anyOf": [
+              {
+                "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Assigned Agent Id"
+          },
+          "attempt_count": {
+            "minimum": 0,
+            "title": "Attempt Count",
+            "type": "integer"
+          },
+          "available_at": {
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}Z$",
+            "title": "Available At",
+            "type": "string"
+          },
+          "blocked_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Blocked Reason"
+          },
+          "cancel_requested": {
+            "title": "Cancel Requested",
+            "type": "boolean"
+          },
+          "completed_at": {
+            "anyOf": [
+              {
+                "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}Z$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Completed At"
+          },
+          "created_at": {
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}Z$",
+            "title": "Created At",
+            "type": "string"
+          },
+          "created_by_agent_id": {
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "title": "Created By Agent Id",
+            "type": "string"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Description"
+          },
+          "error_detail": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Error Detail"
+          },
+          "id": {
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "title": "Id",
+            "type": "string"
+          },
+          "input_payload": {
+            "default": null,
+            "title": "Input Payload"
+          },
+          "lease_expires_at": {
+            "anyOf": [
+              {
+                "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}Z$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Lease Expires At"
+          },
+          "lease_owner_agent_id": {
+            "anyOf": [
+              {
+                "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Lease Owner Agent Id"
+          },
+          "max_attempts": {
+            "maximum": 10,
+            "minimum": 1,
+            "title": "Max Attempts",
+            "type": "integer"
+          },
+          "priority": {
+            "maximum": 100,
+            "minimum": -100,
+            "title": "Priority",
+            "type": "integer"
+          },
+          "project": {
+            "title": "Project",
+            "type": "string"
+          },
+          "result_summary": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Result Summary"
+          },
+          "started_at": {
+            "anyOf": [
+              {
+                "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}Z$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Started At"
+          },
+          "status": {
+            "enum": [
+              "pending",
+              "claimed",
+              "in_progress",
+              "blocked",
+              "completed",
+              "failed",
+              "cancelled"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "target_capability": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Target Capability"
+          },
+          "task_type": {
+            "pattern": "^[a-z0-9][a-z0-9._-]{0,63}$",
+            "title": "Task Type",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "updated_at": {
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}Z$",
+            "title": "Updated At",
+            "type": "string"
+          }
+        },
+        "required": [
+          "attempt_count",
+          "available_at",
+          "cancel_requested",
+          "created_at",
+          "created_by_agent_id",
+          "id",
+          "max_attempts",
+          "priority",
+          "project",
+          "status",
+          "task_type",
+          "title",
+          "updated_at"
+        ],
+        "title": "Task",
+        "type": "object"
+      }
+    },
+    "additionalProperties": false,
+    "properties": {
+      "idempotent_replay": {
+        "title": "Idempotent Replay",
+        "type": "boolean"
+      },
+      "task": {
+        "$ref": "#/$defs/Task"
+      }
+    },
+    "required": [
+      "idempotent_replay",
+      "task"
+    ],
+    "title": "CompleteTaskOutput",
+    "type": "object"
+  }
+}

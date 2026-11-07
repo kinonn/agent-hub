@@ -1,0 +1,88 @@
+{
+  "$id": "https://agenthub.local/schemas/tools/mark_message_read.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "Mark a direct or broadcast project message read or acknowledged.",
+  "input": {
+    "additionalProperties": false,
+    "properties": {
+      "acknowledge": {
+        "default": false,
+        "title": "Acknowledge",
+        "type": "boolean"
+      },
+      "message_id": {
+        "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+        "title": "Message Id",
+        "type": "string"
+      }
+    },
+    "required": [
+      "message_id"
+    ],
+    "title": "MarkMessageReadInput",
+    "type": "object"
+  },
+  "name": "mark_message_read",
+  "output": {
+    "$defs": {
+      "Receipt": {
+        "additionalProperties": false,
+        "properties": {
+          "acknowledged_at": {
+            "anyOf": [
+              {
+                "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}Z$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Acknowledged At"
+          },
+          "agent_id": {
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "title": "Agent Id",
+            "type": "string"
+          },
+          "message_id": {
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "title": "Message Id",
+            "type": "string"
+          },
+          "read_at": {
+            "anyOf": [
+              {
+                "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}Z$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Read At"
+          }
+        },
+        "required": [
+          "agent_id",
+          "message_id"
+        ],
+        "title": "Receipt",
+        "type": "object"
+      }
+    },
+    "additionalProperties": false,
+    "properties": {
+      "receipt": {
+        "$ref": "#/$defs/Receipt"
+      }
+    },
+    "required": [
+      "receipt"
+    ],
+    "title": "MarkMessageReadOutput",
+    "type": "object"
+  }
+}

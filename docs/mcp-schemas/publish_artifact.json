@@ -1,0 +1,333 @@
+{
+  "$id": "https://agenthub.local/schemas/tools/publish_artifact.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "Stage Markdown knowledge for asynchronous GitHub pull-request publication.",
+  "input": {
+    "additionalProperties": false,
+    "dependentRequired": {
+      "task_id": [
+        "lease_token"
+      ]
+    },
+    "properties": {
+      "artifact_type": {
+        "enum": [
+          "research",
+          "specification",
+          "decision",
+          "implementation",
+          "review"
+        ],
+        "title": "Artifact Type",
+        "type": "string"
+      },
+      "content": {
+        "maxLength": 262144,
+        "minLength": 1,
+        "title": "Content",
+        "type": "string"
+      },
+      "document_key": {
+        "anyOf": [
+          {
+            "maxLength": 80,
+            "minLength": 1,
+            "pattern": "^(?!.*\\.\\.)[a-z0-9][a-z0-9._-]{0,79}$",
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Document Key"
+      },
+      "idempotency_key": {
+        "anyOf": [
+          {
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9._:-]+$",
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Idempotency Key"
+      },
+      "lease_token": {
+        "anyOf": [
+          {
+            "maxLength": 128,
+            "minLength": 22,
+            "pattern": "^[A-Za-z0-9_-]+$",
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Lease Token"
+      },
+      "project": {
+        "pattern": "^(?:[a-z0-9][a-z0-9-]{1,62}|[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$",
+        "title": "Project",
+        "type": "string"
+      },
+      "summary": {
+        "anyOf": [
+          {
+            "maxLength": 1000,
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Summary"
+      },
+      "task_id": {
+        "anyOf": [
+          {
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Task Id"
+      },
+      "title": {
+        "maxLength": 200,
+        "minLength": 1,
+        "title": "Title",
+        "type": "string"
+      }
+    },
+    "required": [
+      "artifact_type",
+      "content",
+      "project",
+      "title"
+    ],
+    "title": "PublishArtifactInput",
+    "type": "object"
+  },
+  "name": "publish_artifact",
+  "output": {
+    "$defs": {
+      "Artifact": {
+        "additionalProperties": false,
+        "properties": {
+          "artifact_type": {
+            "enum": [
+              "research",
+              "specification",
+              "decision",
+              "implementation",
+              "review"
+            ],
+            "title": "Artifact Type",
+            "type": "string"
+          },
+          "commit_sha": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Commit Sha"
+          },
+          "content": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Content"
+          },
+          "created_at": {
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}Z$",
+            "title": "Created At",
+            "type": "string"
+          },
+          "created_by_agent_id": {
+            "anyOf": [
+              {
+                "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Created By Agent Id"
+          },
+          "document_key": {
+            "maxLength": 80,
+            "minLength": 1,
+            "pattern": "^(?!.*\\.\\.)[a-z0-9][a-z0-9._-]{0,79}$",
+            "title": "Document Key",
+            "type": "string"
+          },
+          "file_path": {
+            "title": "File Path",
+            "type": "string"
+          },
+          "id": {
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "title": "Id",
+            "type": "string"
+          },
+          "last_error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Last Error"
+          },
+          "project": {
+            "title": "Project",
+            "type": "string"
+          },
+          "publication_status": {
+            "enum": [
+              "draft",
+              "in_review",
+              "published",
+              "rejected",
+              "superseded",
+              "failed"
+            ],
+            "title": "Publication Status",
+            "type": "string"
+          },
+          "published_at": {
+            "anyOf": [
+              {
+                "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}Z$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Published At"
+          },
+          "pull_request_number": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Pull Request Number"
+          },
+          "pull_request_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Pull Request Url"
+          },
+          "repository": {
+            "title": "Repository",
+            "type": "string"
+          },
+          "summary": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Summary"
+          },
+          "task_id": {
+            "anyOf": [
+              {
+                "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Task Id"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "version": {
+            "minimum": 1,
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "artifact_type",
+          "created_at",
+          "document_key",
+          "file_path",
+          "id",
+          "project",
+          "publication_status",
+          "title",
+          "version"
+        ],
+        "title": "Artifact",
+        "type": "object"
+      }
+    },
+    "additionalProperties": false,
+    "properties": {
+      "artifact": {
+        "$ref": "#/$defs/Artifact"
+      },
+      "idempotent_replay": {
+        "title": "Idempotent Replay",
+        "type": "boolean"
+      }
+    },
+    "required": [
+      "artifact",
+      "idempotent_replay"
+    ],
+    "title": "PublishArtifactOutput",
+    "type": "object"
+  }
+}

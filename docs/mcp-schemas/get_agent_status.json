@@ -1,0 +1,149 @@
+{
+  "$id": "https://agenthub.local/schemas/tools/get_agent_status.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "Get an agent profile and leases visible to the caller.",
+  "input": {
+    "additionalProperties": false,
+    "properties": {
+      "agent_id": {
+        "anyOf": [
+          {
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Agent Id"
+      }
+    },
+    "title": "GetAgentStatusInput",
+    "type": "object"
+  },
+  "name": "get_agent_status",
+  "output": {
+    "$defs": {
+      "ActiveLease": {
+        "additionalProperties": false,
+        "properties": {
+          "lease_expires_at": {
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}Z$",
+            "title": "Lease Expires At",
+            "type": "string"
+          },
+          "project": {
+            "title": "Project",
+            "type": "string"
+          },
+          "task_id": {
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "title": "Task Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "lease_expires_at",
+          "project",
+          "task_id"
+        ],
+        "title": "ActiveLease",
+        "type": "object"
+      },
+      "AgentProfile": {
+        "additionalProperties": false,
+        "properties": {
+          "agent_type": {
+            "enum": [
+              "hermes",
+              "opencode",
+              "copilot",
+              "other"
+            ],
+            "title": "Agent Type",
+            "type": "string"
+          },
+          "capabilities": {
+            "items": {
+              "pattern": "^[a-z0-9][a-z0-9._-]{0,63}$",
+              "type": "string"
+            },
+            "title": "Capabilities",
+            "type": "array"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Description"
+          },
+          "id": {
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "title": "Id",
+            "type": "string"
+          },
+          "last_seen_at": {
+            "anyOf": [
+              {
+                "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}Z$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Last Seen At"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "active",
+              "disabled"
+            ],
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "agent_type",
+          "capabilities",
+          "id",
+          "name",
+          "status"
+        ],
+        "title": "AgentProfile",
+        "type": "object"
+      }
+    },
+    "additionalProperties": false,
+    "properties": {
+      "active_leases": {
+        "items": {
+          "$ref": "#/$defs/ActiveLease"
+        },
+        "title": "Active Leases",
+        "type": "array"
+      },
+      "agent": {
+        "$ref": "#/$defs/AgentProfile"
+      }
+    },
+    "required": [
+      "active_leases",
+      "agent"
+    ],
+    "title": "GetAgentStatusOutput",
+    "type": "object"
+  }
+}

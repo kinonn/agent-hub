@@ -1,0 +1,124 @@
+{
+  "$id": "https://agenthub.local/schemas/tools/list_agents.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "List active members of a project.",
+  "input": {
+    "additionalProperties": false,
+    "properties": {
+      "project": {
+        "pattern": "^(?:[a-z0-9][a-z0-9-]{1,62}|[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$",
+        "title": "Project",
+        "type": "string"
+      }
+    },
+    "required": [
+      "project"
+    ],
+    "title": "ListAgentsInput",
+    "type": "object"
+  },
+  "name": "list_agents",
+  "output": {
+    "$defs": {
+      "AgentMember": {
+        "additionalProperties": false,
+        "properties": {
+          "agent_type": {
+            "enum": [
+              "hermes",
+              "opencode",
+              "copilot",
+              "other"
+            ],
+            "title": "Agent Type",
+            "type": "string"
+          },
+          "capabilities": {
+            "items": {
+              "pattern": "^[a-z0-9][a-z0-9._-]{0,63}$",
+              "type": "string"
+            },
+            "title": "Capabilities",
+            "type": "array"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Description"
+          },
+          "id": {
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "title": "Id",
+            "type": "string"
+          },
+          "last_seen_at": {
+            "anyOf": [
+              {
+                "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}Z$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Last Seen At"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "role": {
+            "enum": [
+              "reader",
+              "contributor",
+              "maintainer"
+            ],
+            "title": "Role",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "active",
+              "disabled"
+            ],
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "agent_type",
+          "capabilities",
+          "id",
+          "name",
+          "role",
+          "status"
+        ],
+        "title": "AgentMember",
+        "type": "object"
+      }
+    },
+    "additionalProperties": false,
+    "properties": {
+      "agents": {
+        "items": {
+          "$ref": "#/$defs/AgentMember"
+        },
+        "title": "Agents",
+        "type": "array"
+      }
+    },
+    "required": [
+      "agents"
+    ],
+    "title": "ListAgentsOutput",
+    "type": "object"
+  }
+}

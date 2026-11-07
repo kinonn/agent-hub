@@ -1,0 +1,278 @@
+{
+  "$id": "https://agenthub.local/schemas/tools/list_project_artifacts.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "List visible project artifacts with stable keyset pagination.",
+  "input": {
+    "additionalProperties": false,
+    "properties": {
+      "artifact_type": {
+        "anyOf": [
+          {
+            "enum": [
+              "research",
+              "specification",
+              "decision",
+              "implementation",
+              "review"
+            ],
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Artifact Type"
+      },
+      "cursor": {
+        "anyOf": [
+          {
+            "maxLength": 512,
+            "minLength": 1,
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Cursor"
+      },
+      "limit": {
+        "default": 25,
+        "maximum": 100,
+        "minimum": 1,
+        "title": "Limit",
+        "type": "integer"
+      },
+      "project": {
+        "pattern": "^(?:[a-z0-9][a-z0-9-]{1,62}|[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$",
+        "title": "Project",
+        "type": "string"
+      },
+      "status": {
+        "anyOf": [
+          {
+            "enum": [
+              "draft",
+              "in_review",
+              "published",
+              "rejected",
+              "superseded",
+              "failed"
+            ],
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Status"
+      }
+    },
+    "required": [
+      "project"
+    ],
+    "title": "ListProjectArtifactsInput",
+    "type": "object"
+  },
+  "name": "list_project_artifacts",
+  "output": {
+    "$defs": {
+      "ArtifactSummary": {
+        "additionalProperties": false,
+        "properties": {
+          "artifact_type": {
+            "enum": [
+              "research",
+              "specification",
+              "decision",
+              "implementation",
+              "review"
+            ],
+            "title": "Artifact Type",
+            "type": "string"
+          },
+          "commit_sha": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Commit Sha"
+          },
+          "created_at": {
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}Z$",
+            "title": "Created At",
+            "type": "string"
+          },
+          "created_by_agent_id": {
+            "anyOf": [
+              {
+                "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Created By Agent Id"
+          },
+          "document_key": {
+            "maxLength": 80,
+            "minLength": 1,
+            "pattern": "^(?!.*\\.\\.)[a-z0-9][a-z0-9._-]{0,79}$",
+            "title": "Document Key",
+            "type": "string"
+          },
+          "file_path": {
+            "title": "File Path",
+            "type": "string"
+          },
+          "id": {
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "title": "Id",
+            "type": "string"
+          },
+          "project": {
+            "title": "Project",
+            "type": "string"
+          },
+          "publication_status": {
+            "enum": [
+              "draft",
+              "in_review",
+              "published",
+              "rejected",
+              "superseded",
+              "failed"
+            ],
+            "title": "Publication Status",
+            "type": "string"
+          },
+          "published_at": {
+            "anyOf": [
+              {
+                "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}Z$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Published At"
+          },
+          "pull_request_number": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Pull Request Number"
+          },
+          "pull_request_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Pull Request Url"
+          },
+          "repository": {
+            "title": "Repository",
+            "type": "string"
+          },
+          "summary": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Summary"
+          },
+          "task_id": {
+            "anyOf": [
+              {
+                "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Task Id"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "version": {
+            "minimum": 1,
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "artifact_type",
+          "created_at",
+          "document_key",
+          "file_path",
+          "id",
+          "project",
+          "publication_status",
+          "title",
+          "version"
+        ],
+        "title": "ArtifactSummary",
+        "type": "object"
+      }
+    },
+    "additionalProperties": false,
+    "properties": {
+      "artifacts": {
+        "items": {
+          "$ref": "#/$defs/ArtifactSummary"
+        },
+        "title": "Artifacts",
+        "type": "array"
+      },
+      "next_cursor": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "title": "Next Cursor"
+      }
+    },
+    "required": [
+      "artifacts",
+      "next_cursor"
+    ],
+    "title": "ListProjectArtifactsOutput",
+    "type": "object"
+  }
+}

@@ -1,0 +1,176 @@
+{
+  "$id": "https://agenthub.local/schemas/tools/search_knowledge.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "Search published project knowledge with literal-text matching.",
+  "input": {
+    "additionalProperties": false,
+    "properties": {
+      "artifact_type": {
+        "anyOf": [
+          {
+            "enum": [
+              "research",
+              "specification",
+              "decision",
+              "implementation",
+              "review"
+            ],
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Artifact Type"
+      },
+      "include_unpublished": {
+        "default": false,
+        "title": "Include Unpublished",
+        "type": "boolean"
+      },
+      "limit": {
+        "default": 10,
+        "maximum": 20,
+        "minimum": 1,
+        "title": "Limit",
+        "type": "integer"
+      },
+      "project": {
+        "pattern": "^(?:[a-z0-9][a-z0-9-]{1,62}|[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$",
+        "title": "Project",
+        "type": "string"
+      },
+      "query": {
+        "maxLength": 500,
+        "minLength": 1,
+        "title": "Query",
+        "type": "string"
+      }
+    },
+    "required": [
+      "project",
+      "query"
+    ],
+    "title": "SearchKnowledgeInput",
+    "type": "object"
+  },
+  "name": "search_knowledge",
+  "output": {
+    "$defs": {
+      "SearchResult": {
+        "additionalProperties": false,
+        "properties": {
+          "artifact_id": {
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "title": "Artifact Id",
+            "type": "string"
+          },
+          "artifact_type": {
+            "enum": [
+              "research",
+              "specification",
+              "decision",
+              "implementation",
+              "review"
+            ],
+            "title": "Artifact Type",
+            "type": "string"
+          },
+          "commit_sha": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Commit Sha"
+          },
+          "file_path": {
+            "title": "File Path",
+            "type": "string"
+          },
+          "project": {
+            "title": "Project",
+            "type": "string"
+          },
+          "publication_status": {
+            "enum": [
+              "draft",
+              "in_review",
+              "published",
+              "rejected",
+              "superseded",
+              "failed"
+            ],
+            "title": "Publication Status",
+            "type": "string"
+          },
+          "pull_request_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Pull Request Url"
+          },
+          "repository": {
+            "title": "Repository",
+            "type": "string"
+          },
+          "score": {
+            "title": "Score",
+            "type": "number"
+          },
+          "snippet": {
+            "title": "Snippet",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "version": {
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "artifact_id",
+          "artifact_type",
+          "file_path",
+          "project",
+          "publication_status",
+          "repository",
+          "snippet",
+          "title",
+          "version"
+        ],
+        "title": "SearchResult",
+        "type": "object"
+      }
+    },
+    "additionalProperties": false,
+    "properties": {
+      "results": {
+        "items": {
+          "$ref": "#/$defs/SearchResult"
+        },
+        "title": "Results",
+        "type": "array"
+      }
+    },
+    "required": [
+      "results"
+    ],
+    "title": "SearchKnowledgeOutput",
+    "type": "object"
+  }
+}

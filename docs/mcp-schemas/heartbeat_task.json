@@ -1,0 +1,68 @@
+{
+  "$id": "https://agenthub.local/schemas/tools/heartbeat_task.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "Renew a task lease using its fencing token and check cancellation state.",
+  "input": {
+    "additionalProperties": false,
+    "properties": {
+      "lease_token": {
+        "maxLength": 128,
+        "minLength": 22,
+        "pattern": "^[A-Za-z0-9_-]+$",
+        "title": "Lease Token",
+        "type": "string"
+      },
+      "progress_note": {
+        "anyOf": [
+          {
+            "maxLength": 2000,
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Progress Note"
+      },
+      "task_id": {
+        "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+        "title": "Task Id",
+        "type": "string"
+      }
+    },
+    "required": [
+      "lease_token",
+      "task_id"
+    ],
+    "title": "HeartbeatTaskInput",
+    "type": "object"
+  },
+  "name": "heartbeat_task",
+  "output": {
+    "additionalProperties": false,
+    "properties": {
+      "cancel_requested": {
+        "title": "Cancel Requested",
+        "type": "boolean"
+      },
+      "lease_expires_at": {
+        "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}Z$",
+        "title": "Lease Expires At",
+        "type": "string"
+      },
+      "max_runtime_deadline": {
+        "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}Z$",
+        "title": "Max Runtime Deadline",
+        "type": "string"
+      }
+    },
+    "required": [
+      "cancel_requested",
+      "lease_expires_at",
+      "max_runtime_deadline"
+    ],
+    "title": "HeartbeatTaskOutput",
+    "type": "object"
+  }
+}

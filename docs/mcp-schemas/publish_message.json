@@ -1,0 +1,223 @@
+{
+  "$id": "https://agenthub.local/schemas/tools/publish_message.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "Publish a project or direct agent message.",
+  "input": {
+    "additionalProperties": false,
+    "properties": {
+      "body": {
+        "maxLength": 65536,
+        "minLength": 1,
+        "title": "Body",
+        "type": "string"
+      },
+      "idempotency_key": {
+        "anyOf": [
+          {
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9._:-]+$",
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Idempotency Key"
+      },
+      "message_type": {
+        "enum": [
+          "info",
+          "question",
+          "answer",
+          "status",
+          "handoff",
+          "system"
+        ],
+        "title": "Message Type",
+        "type": "string"
+      },
+      "project": {
+        "pattern": "^(?:[a-z0-9][a-z0-9-]{1,62}|[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$",
+        "title": "Project",
+        "type": "string"
+      },
+      "recipient_agent_id": {
+        "anyOf": [
+          {
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Recipient Agent Id"
+      },
+      "subject": {
+        "maxLength": 200,
+        "minLength": 1,
+        "title": "Subject",
+        "type": "string"
+      },
+      "thread_id": {
+        "anyOf": [
+          {
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Thread Id"
+      }
+    },
+    "required": [
+      "body",
+      "message_type",
+      "project",
+      "subject"
+    ],
+    "title": "PublishMessageInput",
+    "type": "object"
+  },
+  "name": "publish_message",
+  "output": {
+    "$defs": {
+      "Message": {
+        "additionalProperties": false,
+        "properties": {
+          "acknowledged_at": {
+            "anyOf": [
+              {
+                "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}Z$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Acknowledged At"
+          },
+          "body": {
+            "title": "Body",
+            "type": "string"
+          },
+          "created_at": {
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}Z$",
+            "title": "Created At",
+            "type": "string"
+          },
+          "id": {
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "title": "Id",
+            "type": "string"
+          },
+          "message_type": {
+            "enum": [
+              "info",
+              "question",
+              "answer",
+              "status",
+              "handoff",
+              "system"
+            ],
+            "title": "Message Type",
+            "type": "string"
+          },
+          "project": {
+            "title": "Project",
+            "type": "string"
+          },
+          "read_at": {
+            "anyOf": [
+              {
+                "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}Z$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Read At"
+          },
+          "recipient_agent_id": {
+            "anyOf": [
+              {
+                "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Recipient Agent Id"
+          },
+          "sender_agent_id": {
+            "anyOf": [
+              {
+                "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Sender Agent Id"
+          },
+          "subject": {
+            "title": "Subject",
+            "type": "string"
+          },
+          "thread_id": {
+            "anyOf": [
+              {
+                "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Thread Id"
+          }
+        },
+        "required": [
+          "body",
+          "created_at",
+          "id",
+          "message_type",
+          "project",
+          "subject"
+        ],
+        "title": "Message",
+        "type": "object"
+      }
+    },
+    "additionalProperties": false,
+    "properties": {
+      "idempotent_replay": {
+        "title": "Idempotent Replay",
+        "type": "boolean"
+      },
+      "message": {
+        "$ref": "#/$defs/Message"
+      }
+    },
+    "required": [
+      "idempotent_replay",
+      "message"
+    ],
+    "title": "PublishMessageOutput",
+    "type": "object"
+  }
+}

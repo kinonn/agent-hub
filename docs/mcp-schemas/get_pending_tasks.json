@@ -1,0 +1,186 @@
+{
+  "$id": "https://agenthub.local/schemas/tools/get_pending_tasks.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "Browse tasks or list tasks currently claimable by the caller.",
+  "input": {
+    "additionalProperties": false,
+    "properties": {
+      "claimable_only": {
+        "default": true,
+        "title": "Claimable Only",
+        "type": "boolean"
+      },
+      "cursor": {
+        "anyOf": [
+          {
+            "maxLength": 512,
+            "minLength": 1,
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Cursor"
+      },
+      "limit": {
+        "default": 25,
+        "maximum": 100,
+        "minimum": 1,
+        "title": "Limit",
+        "type": "integer"
+      },
+      "project": {
+        "pattern": "^(?:[a-z0-9][a-z0-9-]{1,62}|[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$",
+        "title": "Project",
+        "type": "string"
+      }
+    },
+    "required": [
+      "project"
+    ],
+    "title": "GetPendingTasksInput",
+    "type": "object"
+  },
+  "name": "get_pending_tasks",
+  "output": {
+    "$defs": {
+      "TaskSummary": {
+        "additionalProperties": false,
+        "properties": {
+          "assigned_agent_id": {
+            "anyOf": [
+              {
+                "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Assigned Agent Id"
+          },
+          "attempt_count": {
+            "minimum": 0,
+            "title": "Attempt Count",
+            "type": "integer"
+          },
+          "available_at": {
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}Z$",
+            "title": "Available At",
+            "type": "string"
+          },
+          "created_at": {
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}Z$",
+            "title": "Created At",
+            "type": "string"
+          },
+          "id": {
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "title": "Id",
+            "type": "string"
+          },
+          "priority": {
+            "maximum": 100,
+            "minimum": -100,
+            "title": "Priority",
+            "type": "integer"
+          },
+          "project": {
+            "title": "Project",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "pending",
+              "claimed",
+              "in_progress",
+              "blocked",
+              "completed",
+              "failed",
+              "cancelled"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "target_capability": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Target Capability"
+          },
+          "task_type": {
+            "pattern": "^[a-z0-9][a-z0-9._-]{0,63}$",
+            "title": "Task Type",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "updated_at": {
+            "anyOf": [
+              {
+                "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}Z$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Updated At"
+          }
+        },
+        "required": [
+          "attempt_count",
+          "available_at",
+          "created_at",
+          "id",
+          "priority",
+          "project",
+          "status",
+          "task_type",
+          "title"
+        ],
+        "title": "TaskSummary",
+        "type": "object"
+      }
+    },
+    "additionalProperties": false,
+    "properties": {
+      "next_cursor": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "title": "Next Cursor"
+      },
+      "tasks": {
+        "items": {
+          "$ref": "#/$defs/TaskSummary"
+        },
+        "title": "Tasks",
+        "type": "array"
+      }
+    },
+    "required": [
+      "next_cursor",
+      "tasks"
+    ],
+    "title": "GetPendingTasksOutput",
+    "type": "object"
+  }
+}

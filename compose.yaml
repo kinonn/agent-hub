@@ -1,0 +1,119 @@
+name: agenthub
+
+x-backend: &backend
+  build:
+    context: .
+    dockerfile: deploy/Dockerfile.backend
+  image: agenthub-backend:local
+  user: "10001:10001"
+  read_only: true
+  tmpfs:
+    - /tmp
+  cap_drop:
+    - ALL
+  security_opt:
+    - no-new-privileges:true
+  restart: unless-stopped
+  logging:
+    driver: json-file
+    options:
+      max-size: "10m"
+      max-file: "3"
+  env_file:
+    - .env
+
+services:
+  app-core:
+    <<: *backend
+    command: ["/app/deploy/entrypoint-app.sh"]
+    environment:
+      BACKUP_DIR: /app/backups
+    volumes:
+      - sqlite_data:/app/data
+      - worker_status:/run/agenthub:ro
+      - ${BACKUP_DIR:-./backups}:/app/backups
+    secrets:
+      - app_secret_key
+      - github_webhook_secret
+    ports:
+      - "127.0.0.1:8000:8000"
+    mem_limit: 512m
+    memswap_limit: 512m
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/v1/health', timeout=3)"
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+
+  worker:
+    <<: *backend
+    command: ["python", "-m", "src.workers.main"]
+    environment:
+      BACKUP_DIR: /app/backups
+    depends_on:
+      app-core:
+        condition: service_healthy
+    volumes:
+      - sqlite_data:/app/data
+      - worker_status:/run/agenthub
+      - ${BACKUP_DIR:-./backups}:/app/backups
+    secrets:
+      - app_secret_key
+      - github_app_private_key
+      - github_pat
+    mem_limit: 384m
+    memswap_limit: 384m
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - "import os,sys,time; sys.exit(0 if os.path.exists('/run/agenthub/worker_heartbeat') and time.time()-os.path.getmtime('/run/agenthub/worker_heartbeat')<60 else 1)"
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 60s
+
+  web:
+    image: ${WEB_IMAGE:-agenthub-web:local}
+    user: "101:101"
+    read_only: true
+    tmpfs:
+      - /tmp
+      - /var/cache/nginx
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    depends_on:
+      app-core:
+        condition: service_healthy
+    ports:
+      - "${LAN_BIND_IP}:${WEB_PORT:-3000}:8080"
+    mem_limit: 128m
+    memswap_limit: 128m
+    restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+volumes:
+  sqlite_data:
+  worker_status:
+
+secrets:
+  app_secret_key:
+    file: ./secrets/app_secret_key.txt
+  github_app_private_key:
+    file: ./secrets/github_app_private_key.pem
+  github_pat:
+    file: ./secrets/github_pat.txt
+  github_webhook_secret:
+    file: ./secrets/github_webhook_secret.txt
