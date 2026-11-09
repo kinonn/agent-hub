@@ -3,7 +3,7 @@ from __future__ import annotations
 import asyncio
 import contextvars
 import time
-from collections import defaultdict, deque
+from collections import OrderedDict, deque
 from typing import Any
 
 from fastapi import Request
@@ -21,14 +21,17 @@ principal_context: contextvars.ContextVar[Principal | None] = contextvars.Contex
 
 
 class SlidingWindowLimiter:
-    def __init__(self):
-        self._requests: dict[str, deque[float]] = defaultdict(deque)
+    def __init__(self, max_keys: int = 10_000):
+        # shortcut: least-recently-used keys are dropped past max_keys, so a flood of unique keys can reset other clients' counts; move to a shared store before running more than one process.
+        self._requests: OrderedDict[str, deque[float]] = OrderedDict()
+        self._max_keys = max_keys
         self._lock = asyncio.Lock()
 
     async def check(self, key: str, maximum: int) -> None:
         now = time.monotonic()
         async with self._lock:
-            queue = self._requests[key]
+            queue = self._requests.setdefault(key, deque())
+            self._requests.move_to_end(key)
             while queue and queue[0] <= now - 60:
                 queue.popleft()
             if len(queue) >= maximum:
@@ -39,6 +42,8 @@ class SlidingWindowLimiter:
                     headers={"Retry-After": "60"},
                 )
             queue.append(now)
+            while len(self._requests) > self._max_keys:
+                self._requests.popitem(last=False)
 
 
 rate_limiter = SlidingWindowLimiter()

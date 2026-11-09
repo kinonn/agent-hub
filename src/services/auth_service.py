@@ -6,7 +6,7 @@ import hashlib
 import json
 import re
 import secrets
-from collections import defaultdict, deque
+from collections import OrderedDict, deque
 from datetime import UTC, datetime, timedelta
 from typing import Any
 
@@ -25,6 +25,7 @@ PASSWORDS = PasswordHasher(time_cost=3, memory_cost=65536, parallelism=2)
 CAPABILITY_RE = re.compile(r"^[a-z0-9][a-z0-9._-]{0,63}$")
 EMAIL_RE = re.compile(r"^[^\s@]+@[^\s@]+\.[^\s@]+$")
 PROJECT_SLUG_RE = re.compile(r"^[a-z0-9][a-z0-9-]{1,62}$")
+MAX_LOGIN_BUCKETS = 10_000
 
 
 def _contains_secret_config(value: Any) -> bool:
@@ -56,7 +57,7 @@ class AuthService:
     def __init__(self, database: Database | None = None, settings: Settings | None = None):
         self.db = database or default_db
         self.settings = settings or get_settings()
-        self.login_attempts: dict[str, deque[float]] = defaultdict(deque)
+        self.login_attempts: OrderedDict[str, deque[float]] = OrderedDict()
 
     async def create_user(
         self,
@@ -129,7 +130,9 @@ class AuthService:
         password_hash = PASSWORDS.hash(password)
         async with self.db.write_tx() as tx:
             count = (
-                await tx.execute(text("SELECT count(*) FROM users WHERE role='admin'"))
+                await tx.execute(
+                    text("SELECT count(*) FROM users WHERE role='admin' AND is_active=1")
+                )
             ).scalar_one()
             if count:
                 raise fail("forbidden", "An administrator already exists.", 403)
@@ -171,7 +174,11 @@ class AuthService:
     ) -> dict[str, Any]:
         now_dt = datetime.now(UTC)
         bucket_key = f"{email.strip().lower()}|{ip_address or 'unknown'}"
-        bucket = self.login_attempts[bucket_key]
+        bucket = self.login_attempts.setdefault(bucket_key, deque())
+        self.login_attempts.move_to_end(bucket_key)
+        # shortcut: oldest buckets are evicted past MAX_LOGIN_BUCKETS, so a flood of unique emails can reset others; per-account lockout still applies, upgrade if logins go multi-process.
+        while len(self.login_attempts) > MAX_LOGIN_BUCKETS:
+            self.login_attempts.popitem(last=False)
         while bucket and bucket[0] < (now_dt - timedelta(minutes=15)).timestamp():
             bucket.popleft()
         if len(bucket) >= 5:
@@ -583,9 +590,26 @@ class AuthService:
             key: value for key, value in fields.items() if key in allowed and value is not None
         }
         async with self.db.write_tx() as tx:
-            user = await one(tx, "SELECT id,email FROM users WHERE id=:id", {"id": user_id})
+            user = await one(
+                tx, "SELECT id,role,is_active FROM users WHERE id=:id", {"id": user_id}
+            )
             if not user:
                 raise not_found()
+            losing_admin = (
+                user["role"] == "admin"
+                and bool(user["is_active"])
+                and (updates.get("role") == "member" or updates.get("is_active") is False)
+            )
+            if losing_admin:
+                others = await one(
+                    tx,
+                    "SELECT count(*) AS n FROM users WHERE role='admin' AND is_active=1 AND id<>:id",
+                    {"id": user_id},
+                )
+                if not others["n"]:
+                    raise fail(
+                        "validation_error", "At least one active administrator must remain.", 422
+                    )
             if updates:
                 params = {**updates, "id": user_id, "now": utc_now()}
                 await tx.execute(

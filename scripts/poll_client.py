@@ -32,6 +32,19 @@ def _payload(result) -> dict[str, Any]:
     return {}
 
 
+async def _complete(session, arguments: dict[str, Any], attempts: int = 3, backoff: float = 1.0):
+    # complete_task is idempotent, so a retry after a lost reply is safe.
+    for attempt in range(attempts):
+        try:
+            result = await session.call_tool("complete_task", arguments)
+            break
+        except Exception:
+            if attempt == attempts - 1:
+                raise
+            await asyncio.sleep(backoff * 2**attempt)
+    return _payload(result)
+
+
 def _load_handler(spec: str) -> Callable:
     module_name, separator, function_name = spec.partition(":")
     if not separator:
@@ -138,8 +151,8 @@ async def run() -> None:
                             },
                         )
                     else:
-                        await session.call_tool(
-                            "complete_task",
+                        await _complete(
+                            session,
                             {
                                 "task_id": task_id,
                                 "lease_token": lease_token,

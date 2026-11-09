@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { FormEvent, ReactNode } from "react";
 
 type User = { id: string; display_name: string; email?: string; role: string; is_active?: boolean };
@@ -62,6 +62,7 @@ export default function App() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [tokenOnce, setTokenOnce] = useState("");
+  const eventCursor = useRef(0);
 
   const refresh = useCallback(async () => {
     if (!user) return;
@@ -123,19 +124,20 @@ export default function App() {
   useEffect(() => {
     if (!user) return;
     let fallback: number | undefined;
-    const source = new EventSource(`${API}/events/stream`, { withCredentials: true });
-    let cursor = 0;
+    let debounce: number | undefined;
+    const source = new EventSource(`${API}/events/stream?after_seq=${eventCursor.current}`, { withCredentials: true });
     const onEvent = (event: Event) => {
       const seq = Number((event as MessageEvent).lastEventId);
-      if (Number.isFinite(seq)) cursor = Math.max(cursor, seq);
-      void refresh();
+      if (Number.isFinite(seq)) eventCursor.current = Math.max(eventCursor.current, seq);
+      window.clearTimeout(debounce);
+      debounce = window.setTimeout(() => void refresh(), 250);
     };
     const poll = async () => {
       try {
         const result = await request<{ events: unknown[]; next_seq: number; resync_required: boolean }>(
-          `/events?after_seq=${cursor}&limit=100`,
+          `/events?after_seq=${eventCursor.current}&limit=100`,
         );
-        cursor = Math.max(cursor, result.next_seq);
+        eventCursor.current = Math.max(eventCursor.current, result.next_seq);
         if (result.events.length || result.resync_required) await refresh();
       } catch {
         // The next polling iteration will retry; the API error is shown by the normal refresh.
@@ -154,7 +156,7 @@ export default function App() {
         fallback = window.setInterval(() => void poll(), 10000);
       }
     };
-    return () => { source.close(); if (fallback) window.clearInterval(fallback); };
+    return () => { source.close(); window.clearTimeout(debounce); if (fallback) window.clearInterval(fallback); };
   }, [user, refresh]);
 
   const visibleNav = useMemo(() => NAV.filter(([key]) => key !== "settings" || user?.role === "admin"), [user]);

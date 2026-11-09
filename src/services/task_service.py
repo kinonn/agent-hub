@@ -391,6 +391,15 @@ class TaskService:
                 {"lease_fp": token_hash[:8]},
                 now=now,
             )
+            if progress_note is not None:
+                await record_task_event(
+                    tx,
+                    task_id,
+                    principal.id,
+                    "progress",
+                    {"lease_fp": token_hash[:8], "note": progress_note},
+                    now=now,
+                )
             await emit_event(
                 tx,
                 "task.updated",
@@ -492,7 +501,7 @@ class TaskService:
                         task_id,
                         principal.id,
                         "progress",
-                        {"lease_fp": token_hash[:8]},
+                        {"lease_fp": token_hash[:8], "note": progress_note},
                         now=now,
                     )
                     await emit_event(
