@@ -80,6 +80,9 @@ services:
       start_period: 60s
 
   web:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
     image: ${WEB_IMAGE:-agenthub-web:local}
     user: "101:101"
     read_only: true
